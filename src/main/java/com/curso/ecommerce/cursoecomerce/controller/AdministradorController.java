@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/administrador")
 public class AdministradorController {
 
-    //Redirección para el localhost 8080 hacia a la home
+    //Redirección para el localhost 8085 hacia a la home
     @GetMapping("")
     public String home(){
         //Redirecciona al la vista principal
