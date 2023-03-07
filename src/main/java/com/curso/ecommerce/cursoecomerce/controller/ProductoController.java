@@ -3,6 +3,7 @@ package com.curso.ecommerce.cursoecomerce.controller;
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.curso.ecommerce.cursoecomerce.model.Producto;
 import com.curso.ecommerce.cursoecomerce.model.Usuario;
 import com.curso.ecommerce.cursoecomerce.service.ProductoService;
+
+
 
 @Controller
 //Estamos mapeando la cadena productos para en el navegador encuentre la dirección 
@@ -24,12 +27,16 @@ public class ProductoController {
     //como una mega factoria de objetos. Cada clase se registra para instanciar objetos con 
     //alguna de las anotaciones @Controller ,@Service ,@repository o @RestController.
     @Autowired
-    //Variable service para acceder a todos los métodos
+    //Variable de objeto de la clase ProductoService para acceder a todos los métodos
     private ProductoService productoService;
 
     //Redirección para el localhost 8085 hacia al show
     @GetMapping("")
-    public String show(){
+    //el objeto model obtienen info desde el backend hacia a la vista para obtener los productos
+    public String show(Model model){
+        //Obtenemos desde el objeto modelo el complemento producto service para obtener los productos
+        //hacia a la vista show
+        model.addAttribute("productos", productoService.findAll());
         //Redirecciona al la vista de productos
         return "productos/show";
     }
