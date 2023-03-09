@@ -96,4 +96,15 @@ public class ProductoController {
         //Que nos redireccione a la vista productos
         return "redirect:/productos";
     }
+
+    //Metodo que va a mapear la info desde el boton eliminar para que se edite en la BD
+    //Pasamos por parametro el id del producto
+    //PathVariable: va a mapear la variable id en la url
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable Integer id){
+        //Le pasamos el metodo delete para que nos obtenga el objeto producto y elimine
+        productoService.delete(id);
+        //Que nos redireccione a la vista productos
+        return "redirect:/productos";
+    }
 }

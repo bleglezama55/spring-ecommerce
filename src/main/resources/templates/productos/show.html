@@ -60,7 +60,9 @@
         <!-- Mandamos la url del id edit y obtenemos la vaiable id de ese mismo id para obtener
         el reflejo del id del producto -->
         <td><a  class="btn btn-warning" th:href="@{productos/edit/{id} (id=${producto.id}) }">Editar</a> </td>
-        <td><a  class="btn btn-danger" href="">Eliminar</a> </td>
+        <!-- Mandamos la url del id delete y obtenemos la vaiable id de ese mismo id para obtener
+        el reflejo del id del producto y elimine-->
+        <td><a  class="btn btn-danger" th:href="@{productos/delete/{id} (id=${producto.id}) }">Eliminar</a> </td>
       </tr>       
     </tbody>
   </table>
