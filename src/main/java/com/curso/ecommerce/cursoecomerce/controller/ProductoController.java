@@ -1,10 +1,13 @@
 package com.curso.ecommerce.cursoecomerce.controller;
 
+import java.util.Optional;
+
 import org.slf4j.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -52,7 +55,7 @@ public class ProductoController {
     //Pasamos por parametro objecto producto
     @PostMapping("/save")
     public String save(Producto producto) {
-        //Mensaje
+        //Mensaje por consola
         LOGGER.info("Este es el producto {}",producto);
         //Va a crear un objeto usuario para darle valor al id del usuario y lo demas en vacio
         Usuario User = new Usuario(1,"","","","","","","");
@@ -61,6 +64,36 @@ public class ProductoController {
         //El producto del servicio va a guardar el producto
         productoService.save(producto);
         //Redireccionamose a la vista show
+        return "redirect:/productos";
+    }
+
+    //Metodo que va a mapear la info desde el boton editar para que se edite en la BD
+    //Pasamos por parametro el id del producto
+    //PathVariable: va a mapear la variable  en la url y pasa a la variable a la contigua 
+    //cognotación del id
+    @GetMapping("/edit/{id}") 
+    public String edit(@PathVariable Integer id, Model model){
+        //PAsamos el objeto producto
+        Producto producto = new Producto();
+        //obtenemos la variable optionalProducto ya que nos devuelve la busqueada de un objeto
+        //tipo producto
+        Optional<Producto> optionalProducto = productoService.get(id);
+        //obtenemos el producto que lo va a mandar a buscar
+        producto = optionalProducto.get();
+        //Manda mensaje por consola
+        LOGGER.info("Producto buscado: {}",producto);
+        //Nos va enviar a la vista todo el objeto que lo ha buscado
+        model.addAttribute("producto", producto);
+        //Redireccionamose a la vista edit
+        return "productos/edit";
+    }
+
+    //Redirección para el localhost 8085 hacia la vista update
+    @PostMapping("/update")
+    public String update(Producto producto){
+        //Le pasamos el metodo update para que nos obtenga el objeto producto y la info 
+        productoService.update(producto);
+        //Que nos redireccione a la vista productos
         return "redirect:/productos";
     }
 }
