@@ -1,5 +1,6 @@
 package com.curso.ecommerce.cursoecomerce.controller;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.slf4j.*;
@@ -10,10 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.curso.ecommerce.cursoecomerce.model.Producto;
 import com.curso.ecommerce.cursoecomerce.model.Usuario;
 import com.curso.ecommerce.cursoecomerce.service.ProductoService;
+import com.curso.ecommerce.cursoecomerce.service.UploadFileService;
 
 
 
@@ -30,8 +34,14 @@ public class ProductoController {
     //como una mega factoria de objetos. Cada clase se registra para instanciar objetos con 
     //alguna de las anotaciones @Controller ,@Service ,@repository o @RestController.
     @Autowired
-    //Variable de objeto de la clase ProductoService para acceder a todos los métodos
+    //Variable de objeto de la clase ProductoService para acceder a todos los métodos de esa clase
     private ProductoService productoService;
+    // anotación que permite inyectar unas dependencias con otras dentro de Spring
+    //como una mega factoria de objetos. Cada clase se registra para instanciar objetos con 
+    //alguna de las anotaciones @Controller ,@Service ,@repository o @RestController.
+    @Autowired
+    //Variable de objeto de la clase UploadFileService para acceder a todos los métodos de esa clase
+    private UploadFileService upload;
 
     //Redirección para el localhost 8085 hacia al show
     @GetMapping("")
@@ -54,13 +64,37 @@ public class ProductoController {
     //Metodo que va a mapear la info desde el boton guardar para que se guarde en la BD
     //Pasamos por parametro objecto producto
     @PostMapping("/save")
-    public String save(Producto producto) {
+    //RequestParam: es un parametro en cual le pasamos el nombre del id de la imagen del input html
+    public String save(Producto producto, @RequestParam("img") MultipartFile file) throws IOException {
         //Mensaje por consola
         LOGGER.info("Este es el producto {}",producto);
         //Va a crear un objeto usuario para darle valor al id del usuario y lo demas en vacio
         Usuario User = new Usuario(1,"","","","","","","");
         //Va colocar ese objeto usuario para que el producto sea creado 
         producto.setUsuario(User);
+        //Imagen
+        if (producto.getId()==null){//Cuando se crea un producto
+            //Obtiene el métoto guardar imagen de la clase UploadFileService 
+            String nombreImagen = upload.saveImage(file);
+            //Les pasa el nombre de la imagen al objeto producto
+            producto.setImagen(nombreImagen);
+        }else{
+            if(file.isEmpty()){// cuando editamos la imagen pero no la cambiamos
+                //Creamos el objeto producto
+                Producto p = new Producto();
+                //el objeto producto obtendra el id del producto
+                p=productoService.get(producto.getId()).get();
+                //Esa imagen del producto le va a pasar lo que hemos obtenido de esa misma imagen
+                //cuando se este editando
+                producto.setImagen(p.getImagen());
+
+            }else{ // cuando se edite la imagen también
+                //Obtiene la imagen nueva a guardar
+                String nombreImagen = upload.saveImage(file);
+                //le pasa esa imagen al producto
+                 producto.setImagen(nombreImagen);
+            }
+        }
         //El producto del servicio va a guardar el producto
         productoService.save(producto);
         //Redireccionamose a la vista show
