@@ -79,21 +79,7 @@ public class ProductoController {
             //Les pasa el nombre de la imagen al objeto producto
             producto.setImagen(nombreImagen);
         }else{
-            if(file.isEmpty()){// cuando editamos la imagen pero no la cambiamos
-                //Creamos el objeto producto
-                Producto p = new Producto();
-                //el objeto producto obtendra el id del producto
-                p=productoService.get(producto.getId()).get();
-                //Esa imagen del producto le va a pasar lo que hemos obtenido de esa misma imagen
-                //cuando se este editando
-                producto.setImagen(p.getImagen());
-
-            }else{ // cuando se edite la imagen también
-                //Obtiene la imagen nueva a guardar
-                String nombreImagen = upload.saveImage(file);
-                //le pasa esa imagen al producto
-                 producto.setImagen(nombreImagen);
-            }
+            
         }
         //El producto del servicio va a guardar el producto
         productoService.save(producto);
@@ -124,7 +110,33 @@ public class ProductoController {
 
     //Redirección para el localhost 8085 hacia la vista update
     @PostMapping("/update")
-    public String update(Producto producto){
+    public String update(Producto producto, @RequestParam("img") MultipartFile file) throws IOException{
+        
+        //Creamos el objeto producto
+        Producto p = new Producto();
+        //el objeto producto obtendra el id del producto
+        p=productoService.get(producto.getId()).get();
+        
+        if(file.isEmpty()){// cuando editamos la imagen pero no la cambiamos
+            //Esa imagen del producto le va a pasar lo que hemos obtenido de esa misma imagen
+            //cuando se este editando
+            producto.setImagen(p.getImagen());
+
+        }else{ // cuando se edita la imagen también
+
+            //Eliminar cuando la imagen no sea por defecto
+        if(!p.getImagen().equals("default.jpg")){//Si la imagen que no esta, es la imagen por defecto
+            //Enotnces que me elimine esa imagen
+            upload.deleteImage(p.getImagen());
+
+        }
+            //Obtiene la imagen nueva a guardar
+            String nombreImagen = upload.saveImage(file);
+            //le pasa esa imagen al producto
+             producto.setImagen(nombreImagen);
+        }
+        //Le pasamos el usuario de los productos
+        producto.setUsuario(p.getUsuario());
         //Le pasamos el metodo update para que nos obtenga el objeto producto y la info 
         productoService.update(producto);
         //Que nos redireccione a la vista productos
@@ -136,6 +148,16 @@ public class ProductoController {
     //PathVariable: va a mapear la variable id en la url
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Integer id){
+        //Se crea el objeto producto
+        Producto p = new Producto();
+        //Obtendremos el id del producto
+        p=productoService.get(id).get();
+        //Eliminar cuando la imagen no sea por defecto
+        if(!p.getImagen().equals("default.jpg")){//Si la imagen que no esta, es la imagen por defecto
+            //Enotnces que me elimine esa imagen
+            upload.deleteImage(p.getImagen());
+
+        }
         //Le pasamos el metodo delete para que nos obtenga el objeto producto y elimine
         productoService.delete(id);
         //Que nos redireccione a la vista productos
